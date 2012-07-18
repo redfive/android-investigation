@@ -1,21 +1,23 @@
 package com.jgaunt.Soundbox;
 
+// Android imports
 import android.app.Activity;
-import android.os.Bundle;
-import android.util.Log;
-
-import android.widget.Button;
-import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.view.View.OnClickListener;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.Toast;
 
 
-// dropping in all the imports from the dropbox sample
-import com.dropbox.client2.DropboxAPI;
+// Dropbox imports
 import com.dropbox.client2.android.AndroidAuthSession;
-import com.dropbox.client2.android.AuthActivity;
+//import com.dropbox.client2.android.AuthActivity;
+import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.DropboxAPI.Entry;
+import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.Session.AccessType;
@@ -28,14 +30,15 @@ public class SoundBox extends Activity
     final static private String APP_KEY = "f0bb7lauf2hwczh";
     final static private String APP_SECRET = "rdlit805hwt3wke";
 
-    // I want access to the root music folder, so need all access
+    // To get to the root music folder, full Dropbox access is needed.
     final static private AccessType ACCESS_TYPE = AccessType.DROPBOX;
 
     // The name of the shared preferences file for account related data
     final static private String ACCOUNT_PREFS_NAME = "soundbox-account-prefs";
+
+    // Key names for prefs held in the shared preferences file
     final static private String ACCESS_KEY_NAME = "ACCESS_KEY";
     final static private String ACCESS_SECRET_NAME = "ACCESS_SECRET";
-
 
     // member var for hanging on to the AuthSession
     private DropboxAPI<AndroidAuthSession> mDBApi;
@@ -46,7 +49,7 @@ public class SoundBox extends Activity
     // handle to the UI so we can change the text
     private Button mSubmit;
 
-    /* ************************************************
+    /* ********************************************** *
      *     Android Activity lifetime mgmt methods     *
      * ********************************************** */
 
@@ -93,6 +96,7 @@ public class SoundBox extends Activity
 
                 storeKeys(tokens.key, tokens.secret);
                 setLoggedIn(true);
+                showMusicFolder();
             } catch (IllegalStateException e) {
                 showToast("Couldn't authenticate with Dropbox:" + e.getLocalizedMessage());
                 Log.i("DbAuthLog", "Error authenticating", e);
@@ -126,6 +130,25 @@ public class SoundBox extends Activity
         error.show();
     }
     
+    /* ************************************************
+     *           Dropbox API calls                    *
+     * ********************************************** */
+
+    private void showMusicFolder() {
+        // Metadata
+        try {
+            // working, now just need to parse the names of the folders and
+            // create entries in a UI for them.
+            // for item in existingEntry.contents
+            //   print regex("\/.*", item.path)
+            Entry existingEntry = mDBApi.metadata("/Music", 0, null, true, null);
+            Log.i("DbExampleLog", "The file's rev is now: " + existingEntry.rev);
+            Log.i("DbExampleLog", "The file's contents has : " + existingEntry.contents);
+        } catch (DropboxException e) {
+            Log.e("DbExampleLog", "Something went wrong while getting metadata.");
+        }
+    }
+
     /* ************************************************
      *           Authentication mgmt                  *
      * ********************************************** */
