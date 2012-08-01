@@ -1,5 +1,7 @@
 package com.jgaunt.Soundbox;
 
+import com.jgaunt.Soundbox.R;
+
 // Android imports
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -23,6 +25,10 @@ import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.Session.AccessType;
 import com.dropbox.client2.session.TokenPair;
 
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import android.app.FragmentTransaction;
 
 public class SoundBox extends Activity
 {
@@ -57,7 +63,7 @@ public class SoundBox extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.fragment_layout);
 
         // Create a session
         AndroidAuthSession session = buildSession();
@@ -78,6 +84,9 @@ public class SoundBox extends Activity
         });
 
         setLoggedIn(mDBApi.getSession().isLinked());
+        if (mLoggedIn) {
+            showMusicFolder("/Music");
+        }
     } // onCreate
 
     /** Called after being paused or stopped */
@@ -96,7 +105,7 @@ public class SoundBox extends Activity
 
                 storeKeys(tokens.key, tokens.secret);
                 setLoggedIn(true);
-                showMusicFolder();
+                showMusicFolder("/Music");
             } catch (IllegalStateException e) {
                 showToast("Couldn't authenticate with Dropbox:" + e.getLocalizedMessage());
                 Log.i("DbAuthLog", "Error authenticating", e);
@@ -134,19 +143,62 @@ public class SoundBox extends Activity
      *           Dropbox API calls                    *
      * ********************************************** */
 
-    private void showMusicFolder() {
-        // Metadata
+    // TODO: move this to another thread!
+    private String[] getDropboxListing(String path) {
+        Entry folderListing = null;
         try {
-            // working, now just need to parse the names of the folders and
-            // create entries in a UI for them.
-            // for item in existingEntry.contents
-            //   print regex("\/.*", item.path)
-            Entry existingEntry = mDBApi.metadata("/Music", 0, null, true, null);
-            Log.i("DbExampleLog", "The file's rev is now: " + existingEntry.rev);
-            Log.i("DbExampleLog", "The file's contents has : " + existingEntry.contents);
+            // -- network call
+            folderListing = mDBApi.metadata(path, 0, null, true, null);
+            // TODO: handle the case where this is a file
+            // -- end network call
         } catch (DropboxException e) {
             Log.e("DbExampleLog", "Something went wrong while getting metadata.");
+            // TODO: consider just throwing the exception
+            return null;
         }
+        // convert the entry listing to an array
+        // TODO: change this to iteration and skip the array, go straight to names
+        //       or build other objects to hand back.
+        Entry [] folderContents = new Entry [folderListing.contents.size()];
+        folderContents = (Entry [])folderListing.contents.toArray(folderContents);
+
+        // we're then going to pull the paths out of the Entry objects
+        String [] folders = new String [folderContents.length];
+        for ( int i = 0; i < folderContents.length ; i++ ) {
+            // TODO: make the special characters a preference, user-settable
+
+            // match only word and a few special characters
+            Pattern patt = Pattern.compile("([\\w&@$%!~?]+)$");
+            Matcher matcher = patt.matcher(folderContents[i].path);
+            while (matcher.find()) {
+                folders[i] = matcher.group();
+            }
+        }
+        return folders;
+    }
+
+    public void showMusicFolder(String path) {
+        // TODO: check the input param, if null set to / or /Music
+        // TODO: handle the case where path is a file
+        // Metadata
+
+        String [] folders = getDropboxListing(path);
+        // TODO: handle this coming back null
+
+        // TODO: insert the fragment into a container view, also get it pushed to the backstack
+        //       related - handle the back button!!!
+        SoundBoxListFragment listFrag = (SoundBoxListFragment) getFragmentManager().findFragmentById(R.id.list_frame);
+        //if (listFrag == null || listFrag.getShownIndex() != index) {
+            // Make new fragment to show this selection.
+            listFrag = SoundBoxListFragment.newInstance(path, folders);
+
+            // Execute a transaction, replacing any existing fragment
+            // with this one inside the frame.
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(R.id.list_frame, listFrag);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
+        //}
     }
 
     /* ************************************************

@@ -7,5 +7,10 @@
             android:text="Link with Dropbox"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
+    <ListView android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawSelectorOnTop="false"/>
+
 </LinearLayout>
 
