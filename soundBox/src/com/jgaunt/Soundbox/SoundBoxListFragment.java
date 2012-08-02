@@ -2,27 +2,14 @@ package com.jgaunt.Soundbox;
 
 import com.jgaunt.Soundbox.R;
 
-//import android.app.Activity;
 import android.app.ListFragment;
-//import android.content.SharedPreferences;
-//import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-//import android.view.View.OnClickListener;
-//import android.widget.Button;
-import android.widget.Toast;
-import android.widget.ListView;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import android.app.ListFragment;
 import android.widget.ArrayAdapter;
-
-import com.dropbox.client2.DropboxAPI.Entry;
+import android.widget.ListView;
 
 public class SoundBoxListFragment extends ListFragment {
 
@@ -39,15 +26,6 @@ public class SoundBoxListFragment extends ListFragment {
 
         return listFrag;
     }
-
-/*
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-        Log.i("SoundBoxListFragment", "onCreateView" );
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-*/
 
     @Override
     public void onActivityCreated(Bundle aSavedInstanceState) {
