@@ -89,7 +89,7 @@ public class SoundBoxAsyncFetcher extends AsyncTask<String, Void, String[]> {
         try {
             folderListing = mDBApi.metadata(path, 0, null, true, null);
         } catch (DropboxException e) {
-            Log.e("DbExampleLog", "Something went wrong while getting metadata.");
+            Log.e("DbExampleLog", "Something went wrong while getting metadata." + e);
             // TODO: consider just throwing the exception, so the app can
             //       retry if it wants
             return new String[0];

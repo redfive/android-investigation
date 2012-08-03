@@ -7,6 +7,7 @@ import com.jgaunt.Soundbox.SoundBoxAsyncFetcher.CompletionHandler;
 // Android imports
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -26,7 +27,8 @@ import com.dropbox.client2.session.Session.AccessType;
 
 
 public class SoundBox extends Activity
-                      implements SoundBoxAsyncFetcher.CompletionHandler
+                      implements SoundBoxAsyncFetcher.CompletionHandler,
+                                 FragmentManager.OnBackStackChangedListener
 {
     // TODO: Obfuscate/encrypt this
     final static private String APP_KEY = "f0bb7lauf2hwczh";
@@ -100,6 +102,10 @@ public class SoundBox extends Activity
     @Override
     protected void onResume() {
         super.onResume();
+
+        FragmentManager fragMngr = getFragmentManager();
+        fragMngr.addOnBackStackChangedListener(this);
+
         AndroidAuthSession session = mDBApi.getSession();
 
         if (session.authenticationSuccessful()) {
@@ -139,6 +145,23 @@ public class SoundBox extends Activity
             mFetcher.registerCompletionHandler(null);
         }
     } // onPause
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        FragmentManager fragMngr = getFragmentManager();
+        fragMngr.removeOnBackStackChangedListener(this);
+    } // onStop
+
+    /* ********************************************************************* *
+     *                           Fragment Listener                           *
+     * ********************************************************************* */
+
+    @Override
+    public void onBackStackChanged() {
+        FragmentManager fragMngr = getFragmentManager();
+        Log.i("SoundBox", "onBackStackChanged size is: " + fragMngr.getBackStackEntryCount());
+    }
 
     /* ********************************************************************* *
      *                           UI Modification                             *
@@ -192,9 +215,9 @@ public class SoundBox extends Activity
         // drop our handle on the AsyncFetcher
         mFetcher = null;
         Log.i("SoundBox", "Task Complete, have dropped mFetcher");
-     
-        // TODO: insert the fragment into a container view, also get it pushed to the backstack
-        //       related - handle the back button!!!
+
+        // TODO: insert the fragment into a container view
+                 Handle the case where we are first loading the app; and resuming from a stopped state
         SoundBoxListFragment listFrag = (SoundBoxListFragment) getFragmentManager().findFragmentById(R.id.list_frame);
         //if (listFrag == null || listFrag.getShownIndex() != index) {
             // Make new fragment to show this selection.
