@@ -205,6 +205,7 @@ public class SoundBox extends Activity
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.list_frame, listFrag);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.addToBackStack(null);
             ft.commit();
         //}
     }
