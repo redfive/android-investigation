@@ -101,6 +101,13 @@ public class SoundBoxAsyncFetcher extends AsyncTask<String, Void, String[]> {
             return new String[0];
         }
 
+        if ( ! folderListing.isDir ) {
+            // This is handling an early error condition where we would try to
+            // show the contents of a file and the contents data member is null
+            // TODO: have meaningful error state returns
+            return new String[0];
+        }
+
         // convert the List<entry> to a String[] containing just the leaf names
         // TODO: change this to iteration and skip the array, go straight to names
         //       or build other objects to hand back.
