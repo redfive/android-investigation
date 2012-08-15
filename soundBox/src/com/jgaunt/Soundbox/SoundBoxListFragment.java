@@ -11,6 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 public class SoundBoxListFragment extends ListFragment {
 
     private String mPath = "";
@@ -48,6 +51,23 @@ public class SoundBoxListFragment extends ListFragment {
         //         if (item.isDir())
         Object  clickedItem = getListView().getItemAtPosition(position);
         String txt = clickedItem.toString();
+
+        // TODO: find a better way to determine media type - may require implementing
+        //       the ContentProvider and using the output of that to determine if we
+        //       should play or dive into a new folder.
+        // check to see if the clicked item is a media file (by extension - HACK)
+        // match only word and a few special characters running to .mp3
+        String leafPattern = "([\\w&@$%!~?.]+)(?:\\.mp3$)";
+
+        Pattern pattern = Pattern.compile(leafPattern);
+        Matcher matcher = pattern.matcher(txt);
+        if (matcher.find()) {
+            // play the track
+            (getActivity().getActionBar()).setTitle("Playing " + matcher.group(1));
+            return;
+        }
+        
+        (getActivity().getActionBar()).setTitle(txt);
         ((SoundBox)getActivity()).showMusicFolder(mPath + "/" + txt);
     }
 }
