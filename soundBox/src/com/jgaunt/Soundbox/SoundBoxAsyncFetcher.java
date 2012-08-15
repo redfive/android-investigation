@@ -89,6 +89,7 @@ public class SoundBoxAsyncFetcher extends AsyncTask<String, Void, String[]> {
         try {
             folderListing = mDBApi.metadata(path, 0, null, true, null);
         } catch (DropboxException e) {
+            // When there is a 404, we land here. 
             Log.e("DbExampleLog", "Something went wrong while getting metadata." + e);
             // TODO: consider just throwing the exception, so the app can
             //       retry if it wants
@@ -110,7 +111,7 @@ public class SoundBoxAsyncFetcher extends AsyncTask<String, Void, String[]> {
         String [] folders = new String [folderEntries.length];
         for ( int i = 0; i < folderEntries.length ; i++ ) {
             // TODO: make the special characters a preference, user-settable
-            String leafPattern = "([\\w&@$%!~?.]+)$";
+            String leafPattern = "([\\w&@$%!~?.\\-\\{\\}]+)$";
 
             // match only word and a few special characters running to the end-of-line
             Pattern pattern = Pattern.compile(leafPattern);

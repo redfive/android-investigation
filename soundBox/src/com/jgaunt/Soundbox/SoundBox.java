@@ -217,7 +217,7 @@ public class SoundBox extends Activity
         Log.i("SoundBox", "Task Complete, have dropped mFetcher");
 
         // TODO: insert the fragment into a container view
-                 Handle the case where we are first loading the app; and resuming from a stopped state
+        //         Handle the case where we are first loading the app; and resuming from a stopped state
         SoundBoxListFragment listFrag = (SoundBoxListFragment) getFragmentManager().findFragmentById(R.id.list_frame);
         //if (listFrag == null || listFrag.getShownIndex() != index) {
             // Make new fragment to show this selection.
@@ -246,7 +246,7 @@ public class SoundBox extends Activity
         AppKeyPair appKeyPair = new AppKeyPair(APP_KEY, APP_SECRET);
         AndroidAuthSession session;
 
-        String[] stored = getKeys();
+        String [] stored = getKeys();
         if (stored != null) {
             AccessTokenPair accessToken = new AccessTokenPair(stored[0], stored[1]);
             session = new AndroidAuthSession(appKeyPair, ACCESS_TYPE, accessToken);
