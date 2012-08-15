@@ -87,6 +87,9 @@ public class SoundBoxAsyncFetcher extends AsyncTask<String, Void, String[]> {
         }
         Entry folderListing = null;
         try {
+            // TODO: this call will change to use the ContentProvider and the
+            //       exceptions emitted will probably guide us to know we should
+            //       play the track.
             folderListing = mDBApi.metadata(path, 0, null, true, null);
         } catch (DropboxException e) {
             // When there is a 404, we land here. 
