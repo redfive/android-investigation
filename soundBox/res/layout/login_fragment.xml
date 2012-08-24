@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/auth_button"
+        style="@style/buttonStyle">
+        android:text="@string/link_message">
+</Button>
+

@@ -2,7 +2,8 @@ package com.jgaunt.Soundbox;
 
 // SoundBox imports
 import com.jgaunt.Soundbox.R;
-import com.jgaunt.Soundbox.SoundBoxAsyncFetcher.CompletionHandler;
+//import com.jgaunt.Soundbox.SoundBoxAsyncFetcher.CompletionHandler;
+import com.jgaunt.Soundbox.SoundBoxLoginFragment;
 
 // Android imports
 import android.app.Activity;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -59,6 +61,7 @@ public class SoundBox extends Activity
 
     // mCurrentPath needs to be static to persist when we rotate
     static private String mCurrentPath = DROPBOX_MUSIC_ROOT;
+    static private String mListTag = "krList";
 
     // handle to the UI so we can change the text
     private Button mSubmit;
@@ -71,37 +74,35 @@ public class SoundBox extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_layout);
+        Log.i("SoundBox", "onCreate()");
+        setContentView(R.layout.main);
 
         // Create a session
         AndroidAuthSession session = buildSession();
         mDBApi = new DropboxAPI<AndroidAuthSession>(session);
 
-        // Get the UI for the button and set an event listener
-        mSubmit = (Button)findViewById(R.id.auth_button);
-        mSubmit.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                // This logs you out if you're logged in, or vice versa
-                if (mLoggedIn) {
-                    logOut();
-                } else {
-                    // Start the remote authentication
-                    mDBApi.getSession().startAuthentication(SoundBox.this);
-                }
-            }
-        });
-
         setLoggedIn(mDBApi.getSession().isLinked());
         if (mLoggedIn) {
+            // We are logged in so load the last known path we were looking at
             //Log.i("SoundBox", "in onCreate, calling ShowMusicFolder with " + mCurrentPath);
             showMusicFolder(mCurrentPath);
+        } else {
+            // We are not logged in so load the fragment for the link button
+            showLogin();
         }
     } // onCreate
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i("SoundBox", "onStart()");
+    } // onStart
 
     /** Called after being paused or stopped */
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i("SoundBox", "onResume()");
 
         FragmentManager fragMngr = getFragmentManager();
         fragMngr.addOnBackStackChangedListener(this);
@@ -140,6 +141,7 @@ public class SoundBox extends Activity
     @Override
     protected void onPause() {
         super.onPause();
+        Log.i("SoundBox", "onPause()");
         if (null != mFetcher) {
             mFetcher.setDropboxAPI(null);
             mFetcher.registerCompletionHandler(null);
@@ -147,18 +149,43 @@ public class SoundBox extends Activity
     } // onPause
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.i("SoundBox", "onRestart()");
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
+        Log.i("SoundBox", "onStop()");
         FragmentManager fragMngr = getFragmentManager();
         fragMngr.removeOnBackStackChangedListener(this);
     } // onStop
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i("SoundBox", "onDestroy()");
+    } // onDestroy
+
+    @Override
+    public void onSaveInstanceState(Bundle aSavedInstanceState) {
+        super.onSaveInstanceState(aSavedInstanceState);
+        Log.i("SoundBox", "onSaveInstanceState()");
+    } // onSaveInstanceState
+
+    @Override
+    public void onRestoreInstanceState(Bundle aSavedInstanceState) {
+        super.onRestoreInstanceState(aSavedInstanceState);
+        Log.i("SoundBox", "onRestoreInstanceState()");
+    } // onRestoreInstanceState
 
     /* ********************************************************************* *
      *                           Fragment Listener                           *
      * ********************************************************************* */
 
-    @Override
     public void onBackStackChanged() {
+        Log.i("SoundBox", "onBackStackChanged()");
         FragmentManager fragMngr = getFragmentManager();
         Log.i("SoundBox", "onBackStackChanged size is: " + fragMngr.getBackStackEntryCount());
     }
@@ -172,13 +199,15 @@ public class SoundBox extends Activity
       *  the text on the Button accordingly.
       */
     private void setLoggedIn(boolean loggedIn) {
-        // TODO: pull the display text from a resource
         mLoggedIn = loggedIn;
+        // TODO: figure out where to store the link message for the fragment
+        String message = "Default";
         if (loggedIn) {
-            mSubmit.setText("Unlink from Dropbox");
+            message = getString(R.string.unlink_message);
         } else {
-            mSubmit.setText("Link with Dropbox");
+            message = getString(R.string.link_message);
         }
+        //mSubmit.setText(message);
     }
 
     /** Convenience method to pop a toast message on the screen */
@@ -186,12 +215,45 @@ public class SoundBox extends Activity
         Toast error = Toast.makeText(this, msg, Toast.LENGTH_LONG);
         error.show();
     }
+
+    private void showLogin() {
+        Log.i("SoundBox", "showLogin()");
+        // currently only show this when the user is logged out
+        // eventually allow calling this when the user is logged in so they
+        // can log out.
+        if (mLoggedIn) {
+            // in this case we need to do a replace, not an add transaction
+            return;
+        }
+
+        SoundBoxLoginFragment loginFrag = SoundBoxLoginFragment.newInstance();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.add(R.id.main_frame, loginFrag);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.addToBackStack(null);
+        ft.commit();
+
+        // Get the UI for the button and set an event listener
+        mSubmit = (Button)findViewById(R.id.auth_button);
+        mSubmit.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                // This logs you out if you're logged in, or vice versa
+                if (mLoggedIn) {
+                    logOut();
+                } else {
+                    // Start the remote authentication
+                    mDBApi.getSession().startAuthentication(SoundBox.this);
+                }
+            }
+        });
+    }
     
     /* ********************************************************************* *
      *                          Dropbox API calls                            *
      * ********************************************************************* */
 
     public void showMusicFolder(String aPath) {
+        Log.i("SoundBox", "showMusicFolder()");
         // TODO: check the input param, if null set to / or /Music
         // TODO: handle the case where path is a file
         // Metadata
@@ -204,33 +266,54 @@ public class SoundBox extends Activity
             return;
         }
         mCurrentPath = aPath;
+        // TODO replace this with a DropboxService
         mFetcher = new SoundBoxAsyncFetcher();
         mFetcher.setDropboxAPI(mDBApi);
         mFetcher.registerCompletionHandler(this);
         mFetcher.execute(mCurrentPath);
     }
 
-    @Override
     public void onTaskComplete(String [] aContentArray) {
+        Log.i("SoundBox", "onTaskComplete()");
         // drop our handle on the AsyncFetcher
         mFetcher = null;
         Log.i("SoundBox", "Task Complete, have dropped mFetcher");
 
-        // TODO: insert the fragment into a container view
-        //         Handle the case where we are first loading the app; and resuming from a stopped state
-        SoundBoxListFragment listFrag = (SoundBoxListFragment) getFragmentManager().findFragmentById(R.id.list_frame);
-        //if (listFrag == null || listFrag.getShownIndex() != index) {
-            // Make new fragment to show this selection.
-            listFrag = SoundBoxListFragment.newInstance(mCurrentPath, aContentArray);
+        // TODO: Handle the case where we are first loading the app; and resuming from a stopped state
 
-            // Execute a transaction, replacing any existing fragment
-            // with this one inside the frame.
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.list_frame, listFrag);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.addToBackStack(null);
-            ft.commit();
-        //}
+        // Make new fragment to show this selection.
+        SoundBoxListFragment newListFrag = SoundBoxListFragment.newInstance(mCurrentPath);
+
+        Log.i("SoundBox", "Fragment created: " + newListFrag);
+
+        // Start the fragment transaction
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+        // Bind it to a data adapter
+        newListFrag.setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, aContentArray));
+
+        // XXXredfive - broken ATM, will fix next
+        //ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
+
+        // We may be replacing an existing fragement, check to see if it's there
+        // Search by tag because dynamic fragments can't be found by id
+        SoundBoxListFragment oldListFrag = (SoundBoxListFragment) getFragmentManager().findFragmentByTag(mListTag);
+        if (oldListFrag == null) {
+            Log.i("SoundBox", "No existing Fragment, adding a new list ************");
+            // We didn't have a list already, create a new one and proceed.
+            ft.add(R.id.main_frame, newListFrag, mListTag);
+        } else {
+            Log.i("SoundBox", "Existing Fragment, replacing with a new list: %%%%%%%%%%%%%%%%");
+            // We did have a list already, replace it.
+            ft.remove(oldListFrag);
+            ft.add(R.id.main_frame, newListFrag, mListTag);
+            //ft.replace(R.id.main_frame, newListFrag, mListTag);
+        }
+
+        // Stack it and commit it
+        ft.addToBackStack(null);
+        ft.commit();
+        Log.i("SoundBox", "Fragment Transaction commited.");
     }
 
     /* ********************************************************************* *
