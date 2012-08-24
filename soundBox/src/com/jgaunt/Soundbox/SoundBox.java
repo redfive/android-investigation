@@ -1,10 +1,5 @@
 package com.jgaunt.Soundbox;
 
-// SoundBox imports
-import com.jgaunt.Soundbox.R;
-//import com.jgaunt.Soundbox.SoundBoxAsyncFetcher.CompletionHandler;
-import com.jgaunt.Soundbox.SoundBoxLoginFragment;
-
 // Android imports
 import android.app.Activity;
 import android.app.FragmentTransaction;
@@ -25,7 +20,6 @@ import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.Session.AccessType;
-//import com.dropbox.client2.session.TokenPair;
 
 
 public class SoundBox extends Activity
