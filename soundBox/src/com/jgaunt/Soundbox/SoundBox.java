@@ -1,6 +1,7 @@
 package com.jgaunt.Soundbox;
 
 // Android imports
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.FragmentManager;
@@ -8,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -70,6 +72,10 @@ public class SoundBox extends Activity
         super.onCreate(savedInstanceState);
         Log.i("SoundBox", "onCreate()");
         setContentView(R.layout.main);
+
+        // Allow clicking on the ActionBar icon to take you home
+        ActionBar actionBar = getActionBar();
+        actionBar.setHomeButtonEnabled(true);
 
         // Create a session
         AndroidAuthSession session = buildSession();
@@ -173,6 +179,18 @@ public class SoundBox extends Activity
         super.onRestoreInstanceState(aSavedInstanceState);
         Log.i("SoundBox", "onRestoreInstanceState()");
     } // onRestoreInstanceState
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case (android.R.id.home) :
+                // ActionBar icon clicked
+                showMusicFolder(DROPBOX_MUSIC_ROOT);
+                return true;
+            default :
+            return super.onOptionsItemSelected(item);
+        }
+    } // onOptionsItemSelected
 
     /* ********************************************************************* *
      *                           Fragment Listener                           *
