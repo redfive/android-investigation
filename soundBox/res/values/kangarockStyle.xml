@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="listStyle" >
+        <item name="android:textColor">#232323</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <style name="buttonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#00ff00</item>
+        <item name="android:background">#232323</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:typeface">monospace</item>
+    </style>
+</resources>

@@ -4,9 +4,8 @@
               android:layout_height="match_parent">
 
     <Button android:id="@+id/auth_button"
-            android:text="Link with Dropbox"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:text="@string/link_message"
+            style="@style/buttonStyle">
     </Button>
 
     <FrameLayout android:id="@+id/list_frame"

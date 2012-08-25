@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SoundBox</string>
+    <string name="app_name">KangaroCK</string>
+    <string name="link_message">Link with Dropbox</string>
+    <string name="unlink_message">UnLink from Dropbox</string>
 </resources>
