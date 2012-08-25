@@ -287,7 +287,9 @@ public class SoundBox extends Activity
         newListFrag.setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, aContentArray));
 
         // XXXredfive - broken ATM, will fix next
-        //ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
+        //   this needs to use the value or object animator to do this and may need
+        //   additional methods on the fragment classes.
+        ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
 
         // We may be replacing an existing fragement, check to see if it's there
         // Search by tag because dynamic fragments can't be found by id
