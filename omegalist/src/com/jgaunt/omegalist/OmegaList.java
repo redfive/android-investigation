@@ -1,14 +1,16 @@
 package com.jgaunt.omegalist;
 
 import android.app.Activity;
-import android.app.ListActivity;
+import android.app.FragmentTransaction;
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class OmegaList extends ListActivity
+public class OmegaList extends Activity
+                       implements OmegaListFragment.ClickListener
 {
     public class OmegaListItem {
         public String omegaName = "";
@@ -39,15 +41,17 @@ public class OmegaList extends ListActivity
 
         ArrayAdapter<OmegaListItem> listAdapter = new ArrayAdapter<OmegaListItem> (this, android.R.layout.simple_list_item_1, items);
 
-        ListView lView = (ListView) findViewById(android.R.id.list);
-        lView.setAdapter(listAdapter);
+        OmegaListFragment listFrag = OmegaListFragment.newInstance();
+        listFrag.setListAdapter(listAdapter);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.add(R.id.main_frame, listFrag);
+        ft.commit();
+
     }
 
     @Override
-    protected void onListItemClick( ListView aListView , View aView, int aPosition, long aId ) {
-        OmegaListItem item = (OmegaListItem) getListView().getItemAtPosition(aPosition);
-        showToast( "> " + item.toString() + " status: " + item.omegaStatus );
-        
+    public void onListItemClicked( OmegaListItem aItem ) {
+        showToast( "Fragment " + aItem.toString() + " status: " + aItem.omegaStatus );
     }
 
     /** Convenience method to pop a toast message on the screen */
