@@ -91,6 +91,8 @@ public class SoundBox extends Activity
             }
         });
 
+        // if we auth'd the app with dropbox already then buildSession() above gave
+        // us a session with an accessTokenPair and isLinked() will be true.
         setLoggedIn(mDBApi.getSession().isLinked());
         if (mLoggedIn) {
             //Log.i("SoundBox", "in onCreate, calling ShowMusicFolder with " + mCurrentPath);
@@ -106,8 +108,14 @@ public class SoundBox extends Activity
         FragmentManager fragMngr = getFragmentManager();
         fragMngr.addOnBackStackChangedListener(this);
 
+        // If we're returning from the auth step then this session won't yet
+        // have an accessTokenPair, however if we're just restarting an already
+        // auth'd app it will.
         AndroidAuthSession session = mDBApi.getSession();
 
+        // I think we can also check here to see if we're already linked, and if so
+        // we don't have to get the tokens, store them, or finish authentication because
+        // the earlier buildSession call will have created a session with the tokens set
         if (session.authenticationSuccessful()) {
             try {
                 // MANDATORY call to complete auth.
